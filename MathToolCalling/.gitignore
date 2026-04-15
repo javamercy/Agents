@@ -1,0 +1,10 @@
+.DS_Store
+.env
+.idea/
+/MathToolCalling.csproj
+/MathToolCalling.sln
+/MathToolCalling.sln.DotSettings.user
+/NativeToolCalling.sln.DotSettings.user
+/bin/
+/obj/
+
