@@ -2,6 +2,8 @@ using OpenAI.Chat;
 using ShoppingCartAssistant.Application.Abstracts;
 using ShoppingCartAssistant.Application.Extensions;
 using ShoppingCartAssistant.Application.Models;
+using ShoppingCartAssistant.Application.Models.Chat;
+using ShoppingCartAssistant.Application.Models.Tools;
 
 namespace ShoppingCartAssistant.Application.Concretes;
 
@@ -14,7 +16,7 @@ public class OpenAiChatAdapter : IChatAdapter
         _chatClient = chatClient;
     }
 
-    public async Task<ChatResponse> CompleteAsync(ChatRequest request, CancellationToken cancellationToken = default)
+    public async Task<IChatResponse> CompleteAsync(ChatRequest request, CancellationToken cancellationToken = default)
     {
         var messages = request.Messages.ToOpenAiChatMessages();
         var tools = request.Tools.ToOpenAiChatTools();
@@ -39,13 +41,13 @@ public class OpenAiChatAdapter : IChatAdapter
                     Name: tc.FunctionName,
                     ArgumentsJson: tc.FunctionArguments.ToString())).ToList();
 
-            return new ChatResponse(null, calls);
+            return new ToolCallChatResponse(calls);
         }
 
         var text = completion.Content.Count > 0
             ? string.Join("\n", completion.Content.Select(part => part.Text))
             : string.Empty;
 
-        return new ChatResponse(text, []);
+        return new TextChatResponse(text);
     }
 }

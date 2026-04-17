@@ -1,38 +1,40 @@
-using OpenAI.Chat;
-using ShoppingCartAssistant.Application.Models;
+using ShoppingCartAssistant.Application.Models.Chat;
 
 namespace ShoppingCartAssistant.Application.Extensions;
 
 public static class ChatMessageExtensions
 {
     public static List<OpenAI.Chat.ChatMessage> ToOpenAiChatMessages(
-        this IEnumerable<Application.Models.ChatMessage> messages)
+        this IEnumerable<IChatMessage> messages)
         => messages.Select(ToOpenAiChatMessage).ToList();
 
     private static OpenAI.Chat.ChatMessage ToOpenAiChatMessage(
-        this Application.Models.ChatMessage message)
-        => message.Role switch
+        this IChatMessage message)
+        => message switch
         {
-            ChatRole.System => new SystemChatMessage(message.Content),
-            ChatRole.User => new UserChatMessage(message.Content),
-            ChatRole.Assistant when message.ToolCalls is { Count: > 0 } => CreateAssistantToolCallMessage(message),
-            ChatRole.Assistant => new AssistantChatMessage(message.Content),
-            ChatRole.Tool => new ToolChatMessage(message.ToolCallId ?? string.Empty, message.Content),
-            _ => throw new NotSupportedException($"Unsupported chat role: {message.Role}")
+            SystemChatMessage m => new OpenAI.Chat.SystemChatMessage(m.Content),
+            UserChatMessage m => new OpenAI.Chat.UserChatMessage(m.Content),
+            ToolChatMessage m => new OpenAI.Chat.ToolChatMessage(m.ToolCallId, m.Content),
+            AssistantChatMessage { ToolCalls.Count: > 0 } m => ToOpenAiAssistantChatMessage(m),
+            AssistantChatMessage m =>
+                new OpenAI.Chat.AssistantChatMessage(m.Content ?? string.Empty),
+            _ => throw new NotSupportedException($"Unsupported chat message type: {message.GetType().Name}")
         };
 
-    private static AssistantChatMessage CreateAssistantToolCallMessage(Application.Models.ChatMessage message)
+    private static OpenAI.Chat.AssistantChatMessage ToOpenAiAssistantChatMessage(
+        AssistantChatMessage message)
     {
-        var assistantMessage = new AssistantChatMessage(message.Content);
+        var assistant = new OpenAI.Chat.AssistantChatMessage(message.Content ?? string.Empty);
+
         foreach (var toolCall in message.ToolCalls ?? [])
         {
-            assistantMessage.ToolCalls.Add(
-                ChatToolCall.CreateFunctionToolCall(
+            assistant.ToolCalls.Add(
+                OpenAI.Chat.ChatToolCall.CreateFunctionToolCall(
                     toolCall.Id,
                     toolCall.Name,
                     BinaryData.FromString(toolCall.ArgumentsJson)));
         }
 
-        return assistantMessage;
+        return assistant;
     }
 }

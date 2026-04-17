@@ -1,4 +1,4 @@
-namespace ShoppingCartAssistant.Application.Models;
+namespace ShoppingCartAssistant.Application.Models.Tools;
 
 public record ToolCall(
     string Id,

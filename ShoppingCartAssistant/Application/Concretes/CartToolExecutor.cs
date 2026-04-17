@@ -3,6 +3,7 @@ using System.Text.Json;
 using ShoppingCartAssistant.Application.Abstracts;
 using ShoppingCartAssistant.Application.Extensions;
 using ShoppingCartAssistant.Application.Models;
+using ShoppingCartAssistant.Application.Models.Tools;
 using ShoppingCartAssistant.Domain;
 
 namespace ShoppingCartAssistant.Application.Concretes;

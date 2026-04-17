@@ -1,5 +1,6 @@
 using OpenAI.Chat;
 using ShoppingCartAssistant.Application.Models;
+using ShoppingCartAssistant.Application.Models.Tools;
 
 namespace ShoppingCartAssistant.Application.Extensions;
 

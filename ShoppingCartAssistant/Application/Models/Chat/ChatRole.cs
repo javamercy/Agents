@@ -1,4 +1,4 @@
-namespace ShoppingCartAssistant.Application.Models;
+namespace ShoppingCartAssistant.Application.Models.Chat;
 
 public enum ChatRole
 {
